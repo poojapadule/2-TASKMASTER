@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskMaster — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">T</div>
+      <span class="brand-name">TaskMaster</span>
+      <button class="sidebar-close" id="sidebarClose">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-filter="all">
+        <span class="nav-icon">📋</span> All Tasks
+        <span class="nav-badge" id="badgeAll">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="todo">
+        <span class="nav-icon">🔵</span> To Do
+        <span class="nav-badge" id="badgeTodo">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="in-progress">
+        <span class="nav-icon">🟡</span> In Progress
+        <span class="nav-badge" id="badgeInProgress">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="completed">
+        <span class="nav-icon">🟢</span> Completed
+        <span class="nav-badge" id="badgeCompleted">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="cancelled">
+        <span class="nav-icon">🔴</span> Cancelled
+        <span class="nav-badge" id="badgeCancelled">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">P</div>
+        <div>
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-email" id="userEmail">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <div class="main-wrap">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger">☰</button>
+        <h1 class="page-title">My Tasks</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Search tasks..." />
+          <span class="search-icon">🔍</span>
+        </div>
+        <button class="btn-new-task" id="openModalBtn">+ New Task</button>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar">
+      <div class="stat-card" data-filter="all">
+        <span class="stat-num" id="statTotal">0</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card todo" data-filter="todo">
+        <span class="stat-num" id="statTodo">0</span>
+        <span class="stat-label">To Do</span>
+      </div>
+      <div class="stat-card in-progress" data-filter="in-progress">
+        <span class="stat-num" id="statInProgress">0</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+      <div class="stat-card completed" data-filter="completed">
+        <span class="stat-num" id="statCompleted">0</span>
+        <span class="stat-label">Done</span>
+      </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <select id="priorityFilter">
+        <option value="">All Priorities</option>
+        <option value="urgent">🔥 Urgent</option>
+        <option value="high">🔴 High</option>
+        <option value="medium">🟡 Medium</option>
+        <option value="low">🟢 Low</option>
+      </select>
+      <select id="sortFilter">
+        <option value="createdAt_desc">Newest First</option>
+        <option value="createdAt_asc">Oldest First</option>
+        <option value="dueDate_asc">Due Date ↑</option>
+        <option value="title_asc">Title A-Z</option>
+      </select>
+      <button class="btn-clear-done" id="clearDoneBtn">🗑 Clear Done</button>
+    </div>
+
+    <!-- Task Grid -->
+    <section class="task-grid" id="taskGrid">
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">📭</div>
+        <p>No tasks found</p>
+        <button class="btn-primary" onclick="document.getElementById('openModalBtn').click()">Add your first task</button>
+      </div>
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Create / Edit Task Modal -->
+  <div class="modal-overlay hidden" id="taskModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Task</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <form id="taskForm" novalidate>
+        <input type="hidden" id="taskId" />
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Title <span class="req">*</span></label>
+            <input type="text" id="taskTitle" placeholder="What needs to be done?" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Description</label>
+            <textarea id="taskDesc" rows="3" placeholder="Add details..."></textarea>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="taskPriority">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+              <option value="urgent">🔥 Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="taskStatus">
+              <option value="todo" selected>To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="taskCategory" placeholder="e.g. Development" />
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="taskDueDate" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelModal">Cancel</button>
+          <button type="submit" class="btn-primary" id="saveTaskBtn">
+            <span>Save Task</span>
+            <div class="btn-loader hidden"></div>
+          </button>
+        </div>
+        <div class="form-error hidden" id="taskFormError"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
